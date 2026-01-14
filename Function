@@ -1,0 +1,59 @@
+Sub CorrigerPonctuationFrancaise
+    Dim oDoc As Object
+    Dim oReplace As Object
+    oDoc = ThisComponent
+    oReplace = oDoc.createReplaceDescriptor()
+    oReplace.SearchRegularExpression = True
+
+    ' 1. Espace insécable avant : ; ? !
+    oReplace.SearchString = " *([:;!?])"
+    oReplace.ReplaceString = Chr(160) & "$1"
+    oDoc.replaceAll(oReplace)
+
+    ' 2. Supprimer espace avant . ,
+    oReplace.SearchString = " +([.,])"
+    oReplace.ReplaceString = "$1"
+    oDoc.replaceAll(oReplace)
+
+    ' 3. Pas d’espace avant parenthèse fermante ou guillemets fermants
+    oReplace.SearchString = " +([\)\]\»])"
+    oReplace.ReplaceString = "$1"
+    oDoc.replaceAll(oReplace)
+
+    ' 4. Pas d’espace après parenthèse ouvrante ou guillemets ouvrants
+    oReplace.SearchString = "([\(\[\«]) +"
+    oReplace.ReplaceString = "$1"
+    oDoc.replaceAll(oReplace)
+
+    ' 5. Guillemets droits -> guillemets français avec espace insécable
+    oReplace.SearchString = """(.*?)"""
+    oReplace.ReplaceString = "«" & Chr(160) & "$1" & Chr(160) & "»"
+    oDoc.replaceAll(oReplace)
+
+    ' 6. Doubles espaces
+    oReplace.SearchString = " {2,}"
+    oReplace.ReplaceString = " "
+    oDoc.replaceAll(oReplace)
+
+    ' 7. Suppression espaces en début/fin de paragraphe
+    oReplace.SearchString = "^\s+|\s+$"
+    oReplace.ReplaceString = ""
+    oDoc.replaceAll(oReplace)
+
+    ' 8. Points de suspension (...) -> caractère unique …
+    oReplace.SearchString = "\.\.\."
+    oReplace.ReplaceString = "…"
+    oDoc.replaceAll(oReplace)
+
+    ' 9. Suppression de l’espace avant % ou °C
+    oReplace.SearchString = " +(%|°C|°F|€|£)"
+    oReplace.ReplaceString = "$1"
+    oDoc.replaceAll(oReplace)
+
+    ' 10. Espace après ellipse si suivie de majuscule
+    oReplace.SearchString = "…([A-ZÉÈÊÎÂÔ])"
+    oReplace.ReplaceString = "… $1"
+    oDoc.replaceAll(oReplace)
+
+    MsgBox "Correction complète de la ponctuation terminée selon les règles de ponctuation française !", 64, "Macro terminée"
+End Sub
